@@ -1,10 +1,13 @@
-# from rag.retriever import (
-#     retrieve
+# from cache.exact_cache import (
+#     get_exact_cache,
+#     save_exact_cache
 # )
 
-# from rag.llm import (
-#     generate_answer
+# from cache.semantic_cache import (
+#     get_semantic_cache,
+#     save_semantic_cache
 # )
+
 # from rag.hybrid_search import (
 #     hybrid_search
 # )
@@ -13,51 +16,231 @@
 #     rerank
 # )
 
+# from rag.llm import (
+#     generate_answer
+# )
+
+# from utils.logger import (
+#     logger
+# )
+
+
 # def ask_question(
-#     question
+#     question: str
 # ):
+
+#     print(
+#         "\n" + "=" * 70
+#     )
+#     print(
+#         "NEW QUESTION RECEIVED"
+#     )
+#     print(
+#         "=" * 70
+#     )
+#     print(
+#         f"Question: {question}"
+#     )
+
+#     logger.info(
+#         f"Question Received: {question}"
+#     )
+
+#     # ==================================================
+#     # STEP 1 : EXACT CACHE
+#     # ==================================================
+
+#     print(
+#         "\nChecking Exact Cache..."
+#     )
+
+#     exact_cache_response = (
+#         get_exact_cache(
+#             question
+#         )
+#     )
+
+#     if exact_cache_response:
+
+#         print(
+#             "EXACT CACHE HIT"
+#         )
+
+#         logger.info(
+#             "Exact Cache Hit"
+#         )
+
+#         return {
+#             "answer":
+#             exact_cache_response,
+#             "source":
+#             "exact_cache"
+#         }
+
+#     print(
+#         "EXACT CACHE MISS"
+#     )
+
+#     # ==================================================
+#     # STEP 2 : SEMANTIC CACHE
+#     # ==================================================
+
+#     print(
+#         "\nChecking Semantic Cache..."
+#     )
+
+#     semantic_cache_response = (
+#         get_semantic_cache(
+#             question
+#         )
+#     )
+
+#     if semantic_cache_response:
+
+#         print(
+#             "SEMANTIC CACHE HIT"
+#         )
+
+#         logger.info(
+#             "Semantic Cache Hit"
+#         )
+
+#         return {
+#             "answer":
+#             semantic_cache_response,
+#             "source":
+#             "semantic_cache"
+#         }
+
+#     print(
+#         "SEMANTIC CACHE MISS"
+#     )
+
+#     # ==================================================
+#     # STEP 3 : HYBRID SEARCH
+#     # ==================================================
+
+#     print(
+#         "\nRunning Hybrid Search..."
+#     )
 
 #     docs = hybrid_search(
 #         question
 #     )
+
 #     print(
-#     f"\nHybrid Search Returned "
-#     f"{len(docs)} Chunks"
+#         f"Hybrid Search Returned "
+#         f"{len(docs)} Chunks"
 #     )
+
+#     logger.info(
+#         f"Hybrid Search Returned "
+#         f"{len(docs)} Chunks"
+#     )
+
+#     # ==================================================
+#     # STEP 4 : RERANKING
+#     # ==================================================
+
+#     print(
+#         "\nRunning Cross Encoder Reranker..."
+#     )
+
 #     docs = rerank(
 #         question,
 #         docs
 #     )
+
 #     print(
-#     f"\nReranker Returned "
-#     f"{len(docs)} Chunks"
+#         f"Reranker Returned "
+#         f"{len(docs)} Chunks"
 #     )
+
+#     logger.info(
+#         f"Reranker Returned "
+#         f"{len(docs)} Chunks"
+#     )
+
+#     # ==================================================
+#     # STEP 5 : CONTEXT CREATION
+#     # ==================================================
 
 #     context = "\n".join(
 #         docs
 #     )
 
-#     answer = (
-#         generate_answer(
-#             question,
-#             context
-#         )
+#     print(
+#         f"\nContext Length: "
+#         f"{len(context)}"
+#     )
+
+#     # ==================================================
+#     # STEP 6 : LLM GENERATION
+#     # ==================================================
+
+#     print(
+#         "\nCalling LLM..."
+#     )
+
+#     answer = generate_answer(
+#         question,
+#         context
+#     )
+
+#     print(
+#         "LLM Response Generated"
+#     )
+
+#     logger.info(
+#         "LLM Response Generated"
+#     )
+
+#     # ==================================================
+#     # STEP 7 : SAVE TO CACHE
+#     # ==================================================
+
+#     print(
+#         "\nSaving to Exact Cache..."
+#     )
+
+#     save_exact_cache(
+#         question,
+#         answer
+#     )
+
+#     print(
+#         "Saved to Exact Cache"
+#     )
+
+#     print(
+#         "\nSaving to Semantic Cache..."
+#     )
+
+#     save_semantic_cache(
+#         question,
+#         answer
+#     )
+
+#     print(
+#         "Saved to Semantic Cache"
+#     )
+
+#     logger.info(
+#         "Response Saved To Cache"
+#     )
+
+#     print(
+#         "\nReturning Source: llm"
+#     )
+
+#     print(
+#         "=" * 70
 #     )
 
 #     return {
 #         "answer": answer,
 #         "source": "llm"
 #     }
-
-from cache.exact_cache import (
-    get_exact_cache,
-    save_exact_cache
-)
-
-from cache.semantic_cache import (
-    get_semantic_cache,
-    save_semantic_cache
-)
 
 from rag.hybrid_search import (
     hybrid_search
@@ -71,166 +254,220 @@ from rag.llm import (
     generate_answer
 )
 
-from utils.logger import (
-    logger
+from cache.exact_cache import (
+    get_exact_cache,
+    save_exact_cache
+)
+
+from cache.semantic_cache import (
+    get_semantic_cache,
+    save_semantic_cache
+)
+
+from app_guardrails.guardrail_service import (
+    run_guardrails
+)
+
+from app_guardrails.output_masker import (
+    mask_output
 )
 
 
-def ask_question(
-    question: str
-):
-
+def ask_question(question):
     print(
-        "\n" + "=" * 70
+        "\n======================================================================"
     )
     print(
         "NEW QUESTION RECEIVED"
     )
     print(
-        "=" * 70
+        "======================================================================"
     )
     print(
         f"Question: {question}"
     )
 
-    logger.info(
-        f"Question Received: {question}"
+    # ============================================================
+    # PHASE 3 - GUARDRAILS
+    # ============================================================
+    print(
+        "\n[STEP 1] RUNNING GUARDRAILS..."
     )
 
-    # ==================================================
-    # STEP 1 : EXACT CACHE
-    # ==================================================
+    is_valid, guardrail_message = (
+        run_guardrails(
+            question
+        )
+    )
+
+    if not is_valid:
+        print(
+            "\nGUARDRAILS BLOCKED THE REQUEST"
+        )
+        print(
+            f"Reason: {guardrail_message}"
+        )
+
+        return {
+            "answer": guardrail_message,
+            "source": "guardrail"
+        }
 
     print(
-        "\nChecking Exact Cache..."
+        "GUARDRAILS PASSED"
     )
 
-    exact_cache_response = (
+    # ============================================================
+    # PHASE 2 - EXACT CACHE
+    # ============================================================
+    print(
+        "\n[STEP 2] CHECKING EXACT CACHE..."
+    )
+
+    exact_cache_answer = (
         get_exact_cache(
             question
         )
     )
 
-    if exact_cache_response:
-
+    if exact_cache_answer:
         print(
             "EXACT CACHE HIT"
         )
+        print(
+            "Returning response from exact cache"
+        )
 
-        logger.info(
-            "Exact Cache Hit"
+        masked_answer = (
+            mask_output(
+                exact_cache_answer
+            )
         )
 
         return {
-            "answer":
-            exact_cache_response,
-            "source":
-            "exact_cache"
+            "answer": masked_answer,
+            "source": "exact_cache"
         }
 
     print(
         "EXACT CACHE MISS"
     )
 
-    # ==================================================
-    # STEP 2 : SEMANTIC CACHE
-    # ==================================================
-
+    # ============================================================
+    # PHASE 2 - SEMANTIC CACHE
+    # ============================================================
     print(
-        "\nChecking Semantic Cache..."
+        "\n[STEP 3] CHECKING SEMANTIC CACHE..."
     )
 
-    semantic_cache_response = (
+    semantic_cache_answer = (
         get_semantic_cache(
             question
         )
     )
 
-    if semantic_cache_response:
-
+    if semantic_cache_answer:
         print(
             "SEMANTIC CACHE HIT"
         )
+        print(
+            "Returning response from semantic cache"
+        )
 
-        logger.info(
-            "Semantic Cache Hit"
+        masked_answer = (
+            mask_output(
+                semantic_cache_answer
+            )
         )
 
         return {
-            "answer":
-            semantic_cache_response,
-            "source":
-            "semantic_cache"
+            "answer": masked_answer,
+            "source": "semantic_cache"
         }
 
     print(
         "SEMANTIC CACHE MISS"
     )
 
-    # ==================================================
-    # STEP 3 : HYBRID SEARCH
-    # ==================================================
-
+    # ============================================================
+    # PHASE 1 - HYBRID SEARCH
+    # ============================================================
     print(
-        "\nRunning Hybrid Search..."
+        "\n[STEP 4] RUNNING HYBRID SEARCH..."
     )
 
     docs = hybrid_search(
         question
     )
 
-    print(
-        f"Hybrid Search Returned "
-        f"{len(docs)} Chunks"
-    )
+    if not docs:
+        print(
+            "No documents returned from hybrid search"
+        )
 
-    logger.info(
-        f"Hybrid Search Returned "
-        f"{len(docs)} Chunks"
-    )
+        fallback_answer = (
+            "I could not find relevant information in the uploaded documents."
+        )
 
-    # ==================================================
-    # STEP 4 : RERANKING
-    # ==================================================
+        fallback_answer = (
+            mask_output(
+                fallback_answer
+            )
+        )
 
-    print(
-        "\nRunning Cross Encoder Reranker..."
-    )
-
-    docs = rerank(
-        question,
-        docs
-    )
+        return {
+            "answer": fallback_answer,
+            "source": "llm"
+        }
 
     print(
-        f"Reranker Returned "
-        f"{len(docs)} Chunks"
+        f"Hybrid Search Returned {len(docs)} Chunks"
     )
 
-    logger.info(
-        f"Reranker Returned "
-        f"{len(docs)} Chunks"
+    # ============================================================
+    # PHASE 1 - RERANKER
+    # ============================================================
+    print(
+        "\n[STEP 5] RUNNING RERANKER..."
     )
 
-    # ==================================================
-    # STEP 5 : CONTEXT CREATION
-    # ==================================================
+    reranked_docs = (
+        rerank(
+            question,
+            docs
+        )
+    )
 
-    context = "\n".join(
-        docs
+    if not reranked_docs:
+        print(
+            "Reranker returned no documents, using hybrid docs directly"
+        )
+        reranked_docs = docs
+
+    print(
+        f"Reranker Returned {len(reranked_docs)} Chunks"
+    )
+
+    # ============================================================
+    # BUILD CONTEXT
+    # ============================================================
+    print(
+        "\n[STEP 6] BUILDING CONTEXT..."
+    )
+
+    context = "\n\n".join(
+        reranked_docs
     )
 
     print(
-        f"\nContext Length: "
-        f"{len(context)}"
+        f"Context Length: {len(context)} characters"
     )
 
-    # ==================================================
-    # STEP 6 : LLM GENERATION
-    # ==================================================
-
+    # ============================================================
+    # GENERATE ANSWER
+    # ============================================================
     print(
-        "\nCalling LLM..."
+        "\n[STEP 7] GENERATING ANSWER FROM LLM..."
     )
 
     answer = generate_answer(
@@ -239,53 +476,65 @@ def ask_question(
     )
 
     print(
-        "LLM Response Generated"
+        "LLM Answer Generated"
     )
 
-    logger.info(
-        "LLM Response Generated"
-    )
-
-    # ==================================================
-    # STEP 7 : SAVE TO CACHE
-    # ==================================================
-
+    # ============================================================
+    # OUTPUT MASKING
+    # ============================================================
     print(
-        "\nSaving to Exact Cache..."
+        "\n[STEP 8] RUNNING OUTPUT MASKING..."
     )
 
-    save_exact_cache(
-        question,
+    answer = mask_output(
         answer
     )
 
     print(
-        "Saved to Exact Cache"
+        "Output Masking Completed"
     )
+
+    # ============================================================
+    # SAVE TO CACHES
+    # ============================================================
+    print(
+        "\n[STEP 9] SAVING RESPONSE TO CACHE..."
+    )
+
+    try:
+        save_exact_cache(
+            question,
+            answer
+        )
+        print(
+            "Exact Cache Saved"
+        )
+    except Exception as e:
+        print(
+            f"Exact Cache Save Failed: {e}"
+        )
+
+    try:
+        save_semantic_cache(
+            question,
+            answer
+        )
+        print(
+            "Semantic Cache Saved"
+        )
+    except Exception as e:
+        print(
+            f"Semantic Cache Save Failed: {e}"
+        )
 
     print(
-        "\nSaving to Semantic Cache..."
+        "\n======================================================================"
     )
-
-    save_semantic_cache(
-        question,
-        answer
-    )
-
     print(
-        "Saved to Semantic Cache"
+        "REQUEST COMPLETED SUCCESSFULLY"
     )
-
-    logger.info(
-        "Response Saved To Cache"
-    )
-
     print(
-        "\nReturning Source: llm"
-    )
-
-    print(
-        "=" * 70
+        "======================================================================"
     )
 
     return {
